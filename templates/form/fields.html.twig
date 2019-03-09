@@ -1,0 +1,48 @@
+{% block collection_widget %}
+    {% set removeBtn ='<span class="collection-remove">----</span>' %}
+
+    {% if prototype is defined and not prototype.rendered %}
+        {%- set attr = attr|merge({'data-prototype': form_row(prototype)}) -%}
+    {% endif %}
+    {{- block('form_widget') -}}
+
+    {% set key = random() %}
+    <span class='collection-add' id="collection-add-{{ key }}">++++</span>
+    <script>
+        (function(addBtn){
+            let parent = addBtn.parentElement;
+            let prorotypeElement= parent.querySelector('[data-prototype]');
+            let prototype= prorotypeElement.getAttribute('data-prototype');
+            let initOptions= prorotypeElement.querySelectorAll('[data-selector="collectionInput"]');
+
+            let optinosIterator = 0;
+
+            for(; optinosIterator<initOptions.length; optinosIterator++)
+            {
+                addRemover(initOptions[optinosIterator].parentElement);
+            }
+
+            addBtn.addEventListener('click', add);
+
+            function addRemover(row) {
+                let minus = document.createElement("div");
+                minus.innerHTML = '{{ removeBtn|raw }}';
+                minus.firstChild.addEventListener('click', remove);
+                row.appendChild(minus.firstChild);
+            }
+
+            function remove() {
+                this.parentElement.parentElement.removeChild(this.parentElement);
+            }
+
+            function add() {
+                let _ = document.createElement('div');
+                _.innerHTML = prototype.replace(/__name__/gi, optinosIterator);
+                let row = _.firstChild;
+                addRemover(row);
+                prorotypeElement.appendChild(row);
+                optinosIterator++;
+            }
+        })(document.getElementById('collection-add-{{ key }}'));
+    </script>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello ArticlesController!{% endblock %}
+
+{% block body %}
+    <table>
+        <tr><th>Name</th><th></th></tr>
+        {% for article in articles %}
+            <tr><td>{{ article['name'] }}</td><td><a href="{{ path('articles_edit', {'articleId': article['id']}) }}">Upravit</a></td></tr>
+        {% endfor %}
+    </table>
+{% endblock %}

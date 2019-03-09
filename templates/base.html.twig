@@ -1,0 +1,62 @@
+{#<!DOCTYPE html>#}
+{#<html>#}
+    {#<head>#}
+        {#<meta charset="UTF-8">#}
+        {#<title>{% block title %}Welcome!{% endblock %}</title>#}
+        {#{% block stylesheets %}{% endblock %}#}
+    {#</head>#}
+    {#<body>#}
+        {#{% block body %}{% endblock %}#}
+        {#{% block javascripts %}{% endblock %}#}
+    {#</body>#}
+{#</html>#}
+<html lang="cs">
+
+<head>
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    {% block stylesheets %}{% endblock %}
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://www.su.fit.vutbr.cz/style.min.css">
+    <link rel="stylesheet" href="http://www.su.fit.vutbr.cz/tobeseen-base.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700,800&amp;subset=latin-ext" rel="stylesheet">
+    <style>
+        .background {
+            padding-top: 1px;
+            padding-bottom: 1px;
+        }
+        .background .wrap .headline h1 {
+            margin: 0.2em auto 0.2em auto;
+        }
+    </style>
+</head>
+
+<body>
+
+<section class="background">
+    <div class="wrap">
+        <div class="headline">
+            <h1>KIS Administrace</h1>
+        </div>
+    </div>
+
+    <div class="background-overlay">
+    </div>
+</section>
+
+<div class="wrap">
+    <section class="main">
+
+        <!--<div class="pure-g">-->
+        <div class="">
+            <div class="info">
+                {% block body %}{% endblock %}
+                {% block javascripts %}{% endblock %}
+            </div>
+        </div>
+
+        <!--</div>-->
+    </section>
+</div>
+</body>
+</html>

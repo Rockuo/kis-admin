@@ -31,6 +31,7 @@ class ApiMiddleware
     const ROUTE_USERS_ME = 'users/me';
 
     const ROUTE_AUTH_EDUID_LOGIN = 'auth/eduid/login';
+    const ROUTE_AUTH_EDUID_REG = 'auth/eduid/register';
     const ROUTE_AUTH_EDUID = 'auth/eduid';
     const ROUTE_AUTH_REFRESH = 'auth/fresh_token';
 
@@ -50,7 +51,14 @@ class ApiMiddleware
     const ROUTE_ARTICLES_LABELS = 'articles/{article_id}/labels';
     const ROUTE_ARTICLES_TARIFFS = 'articles/{article_id}/tariffs';
 
+    const ROUTE_CASHBOXES = 'cashboxes';
+    const ROUTE_CASHBOX_ID = 'cashbox/{cashbox_id}';
+
+    const ROUTE_TAPS = 'beer/taps';
+    const ROUTE_TAPS_ID = 'beer/taps/{tap_id}';
+
     const ROUTE_LABELS = 'labels';
+    const ROUTE_LABELS_ID = 'labels/{label_id}';
 
 
     const USER_ROLES = [
@@ -105,6 +113,12 @@ class ApiMiddleware
     public function get(string $url, array $query = [])
     {
         return $this->client->get($this->processURL($url, $query), [RequestOptions::QUERY => $query,]);
+    }
+
+
+    public function delete(string $url, array $query = [])
+    {
+        return $this->client->delete($this->processURL($url, $query), [RequestOptions::QUERY => $query,]);
     }
 
     public function put(string $url, array $query = [],  array $data = [])

@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pípy{% endblock %}
+
+{% block body %}
+    <table>
+        <tr>
+            <th>Name</th>
+            <th></th>
+        </tr>
+
+        {% for form in forms %}
+            {{ form_start(form) }}
+            <tr>
+                <td>{{ form_row(form.name) }}</td>
+                <td>{{ form_row(form.save) }}</td>
+            </tr>
+            {{ form_end(form) }}
+        {% endfor %}
+    </table>
+{% endblock %}

@@ -65,13 +65,13 @@ class KisAuthSubscriber implements EventSubscriberInterface
         if ($controller[0] instanceof AuthenticatedController) {
             $authData = $request->getSession()->get('auth_data');
 
-            if($request->get('_route') === 'login')
+            if($request->get('_route') === 'login' || $request->get('_route') === 'home' || $request->get('_route') === 'register')
             {
                 return;
             }
 
             if (!($authData && $authData['token_type'] === 'Bearer')) {
-                $this->throwLoginRedirect($request);
+                $this->throwNotLoggedInRedirect($request);
             }
 
             $expiresDate = (new \DateTime($authData['expires_at']));
@@ -82,7 +82,7 @@ class KisAuthSubscriber implements EventSubscriberInterface
             {
                 if(!$this->apiMiddleware->refreshToken())
                 {
-                    $this->throwLoginRedirect($request);
+                    $this->throwNotLoggedInRedirect($request);
                 }
             }
 
@@ -94,14 +94,15 @@ class KisAuthSubscriber implements EventSubscriberInterface
      * @param Request $request
      * @throws RedirectException
      */
-    protected function throwLoginRedirect(Request $request)
+    protected function throwNotLoggedInRedirect(Request $request)
     {
         if($request->getMethod() === Request::METHOD_GET)
         {
             $request->getSession()->set('origin', $request->getUri());
         }
         throw new RedirectException(
-            new \Symfony\Component\HttpFoundation\RedirectResponse($this->router->generate('login'))
+//            new \Symfony\Component\HttpFoundation\RedirectResponse($this->router->generate('login'))
+            new \Symfony\Component\HttpFoundation\RedirectResponse($this->router->generate('home'))
         );
     }
 

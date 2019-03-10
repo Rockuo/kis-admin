@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Štítky{% endblock %}
+
+{% block body %}
+    <table>
+        <tr>
+            <th>Jmeno</th>
+            <th>Barva</th>
+            <th></th>
+            <th></th>
+        </tr>
+
+        {% for form in forms %}
+            {{ form_start(form.form) }}
+            <tr>
+                <td>{{ form_row(form.form.name) }}</td>
+                <td>{{ form_row(form.form.color) }}</td>
+                <td>{{ form_row(form.form.save) }}</td>
+                <td>...</td>
+
+                <td>
+                    {% if form.id != null%}
+                    <a href="{{ path('label_delete', {'labelId': form.id}) }}">SMAZAT</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {{ form_end(form.form) }}
+        {% endfor %}
+    </table>
+{% endblock %}

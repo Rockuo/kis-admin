@@ -4,9 +4,6 @@ namespace App\Controller;
 
 use App\Service\ApiMiddleware;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,9 +29,16 @@ class LoginController extends AbstractController implements AuthenticatedControl
      * @Route("/login", name="login")
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
      */
-    public function index(Request $request)
+    public function login(Request $request)
     {
+        if($this->authDataReady($request->getSession()))
+        {
+            return $this->redirectToRoute('home');
+        }
+
+
         if ($eduIdSession = $request->get('session_id')) {
             $request->getSession()->set('eduId_session', $eduIdSession);
             $apiLoginResponse =  $this->apiMiddleware->get(ApiMiddleware::ROUTE_AUTH_EDUID_LOGIN, ['session_id' => $eduIdSession]);
@@ -60,41 +64,107 @@ class LoginController extends AbstractController implements AuthenticatedControl
                 return $this->redirect($origin);
             }
 
-            return $this->render('login/index.html.twig', [
-                'controller_name' => 'LoginController',
-            ]);
+            return $this->redirectToRoute('home');
         } else {
-            $response = $this->apiMiddleware->get(ApiMiddleware::ROUTE_AUTH_EDUID, ['redirect' => 'http://localhost:8000/login']);
+            $response = $this->apiMiddleware->get(ApiMiddleware::ROUTE_AUTH_EDUID, ['redirect' => $_SERVER['kis-prefix'].$this->generateUrl('login')]);
             $responseData = json_decode($response->getBody()->getContents(), true);
             return $this->redirect($responseData['wayf_url']);
         }
 
     }
 
+//    /**
+//     * @Route("/register", name="register")
+//     * @param Request $request
+//     * @return \Symfony\Component\HttpFoundation\Response
+//     * @throws \Exception
+//     */
+//    public function register(Request $request)
+//    {
+//        if($this->authDataReady($request->getSession()))
+//        {
+//            return $this->redirectToRoute('home');
+//        }
+//
+//        if ($eduIdSession = $request->get('session_id')) {
+//            $request->getSession()->set('eduId_session', $eduIdSession);
+//            $apiLoginResponse =  $this->apiMiddleware->get(ApiMiddleware::ROUTE_AUTH_EDUID_LOGIN, ['session_id' => $eduIdSession]);
+//            $apiLoginResponseData = json_decode($apiLoginResponse->getBody()->getContents(), true);
+//
+//
+//            $request->getSession()->set('auth_data', $apiLoginResponseData);
+//            $this->apiMiddleware->initClient($request->getSession());
+//
+//
+//            $meLoginResponse =  $this->apiMiddleware->get(ApiMiddleware::ROUTE_USERS_ME);
+//            $meLoginResponseData = json_decode($meLoginResponse->getBody()->getContents(), true);
+//
+//            $request->getSession()->set('user_data', [
+//                'email' => $meLoginResponseData['email'],
+//                'nickname' => $meLoginResponseData['nickname'],
+//                'role' => $meLoginResponseData['role'],
+//            ]);
+//
+//            if($origin = $request->getSession()->get('origin'))
+//            {
+//                $request->getSession()->set('origin', null);
+//                return $this->redirect($origin);
+//            }
+//
+//            return $this->redirectToRoute('home');
+//        } else {
+//            $response = $this->apiMiddleware->get(ApiMiddleware::ROUTE_AUTH_EDUID, ['redirect' => $this->generateUrl('register')]);
+//            $responseData = json_decode($response->getBody()->getContents(), true);
+//            return $this->redirect($responseData['wayf_url']);
+//        }
+//
+//    }
+
     /**
-     * @Route("/not-login", name="not_login")
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param SessionInterface $session
+     * @return bool
+     * @throws \Exception
      */
-    public function notLogin(Request $request)
+    private function authDataReady(SessionInterface $session)
     {
+        $authData= $session->get('auth_data');
+        if ($authData && $authData['token_type'] === 'Bearer') {
 
-        $form = $this->createFormBuilder()
-            ->add('image', FileType::class)
-            ->add('save', SubmitType::class, ['label' => 'Create Task'])
-            ->getForm();
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-
-            $file = $form['image']->getData();
-//            $this->sendFile($file, $request->getSession());
-//            $contents = $file->fread($file->getSize());
-
+            $expiresDate = (new \DateTime($authData['expires_at']));
+            $now = (new \DateTime())->getTimestamp();
+            return $expiresDate->getTimestamp() > $now;
         }
-        return $this->render('login/notLogin.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        return false;
     }
 
+    /**
+     * @Route("/logout", name="logout")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function logout(Request $request)
+    {
+        $request->getSession()->set('user_data', null);
+        $request->getSession()->set('auth_data', null);
+        return $this->redirectToRoute('home');
+    }
+
+    /**
+     * @Route("/", name="home")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Exception
+     */
+    public function index(Request $request)
+    {
+        if($this->authDataReady($request->getSession()))
+        {
+            return $this->render('login/indexLogged.html.twig', [
+                'userData' => $request->getSession()->get('user_data'),
+            ]);
+        }
+
+        return $this->render('login/index.html.twig');
+    }
 
 }

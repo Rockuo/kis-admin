@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Přihlášení{% endblock %}
+
+{% block body %}
+    <div>Předívka: <b>{{ userData.nickname }}</b></div>
+    <div>Email: <b>{{ userData.email }}</b></div>
+    <div>Role: <b>{{ userData.role }}</b></div>
+    <div><a href="{{ path('logout') }}">ODHLÁSIT</a></div>
+{% endblock %}

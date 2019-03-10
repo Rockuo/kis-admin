@@ -34,7 +34,7 @@ class ArticleType extends AbstractType
                 'allow_add' => true,
                 'entry_options' => ['label' => false, 'attr' => ['data-selector'=>'collectionInput']],
             ])
-            ->add('save', SubmitType::class, ['label' => 'Upravit']);
+            ->add('save', SubmitType::class, ['label' => 'Upravit'])
         ;
     }
 

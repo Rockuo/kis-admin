@@ -16,7 +16,7 @@ class ArticleType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name')
+            ->add('basics', ArticleBasicsType::class, ['label' => false, 'data' => ['name' => $options['data']['name'],'unit' => $options['data']['unit']]])
             ->add('image', FileType::class, ['required' => false])
             ->add('labels', ChoiceType::class, [
                 'choices' => $options['labelsAll'],

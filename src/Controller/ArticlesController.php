@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Form\ArticleBasicsType;
 use App\Form\ArticleType;
 use App\Service\ApiMiddleware;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -39,6 +40,56 @@ class ArticlesController extends AbstractController implements AuthenticatedCont
         ]);
     }
 
+
+    private function createArticleForm($data = null)
+    {
+        $labels = $this->apiMiddleware->getJSON(ApiMiddleware::ROUTE_LABELS);
+
+        $articles = $this->apiMiddleware->getJSON(ApiMiddleware::ROUTE_ARTICLES);
+        $allArticles = [];
+        foreach ($articles as $article) {
+
+            if (array_key_exists($article['name'], $allArticles)) {
+                $article['name'] = $article['name'] . '(' . $article['id'] . ')';
+            }
+            $allArticles[$article['name']] = $article['id'];
+        }
+
+        $formLabels = [];
+        foreach ($labels as $label) {
+            $formLabels[$label['name']] = $label['id'];
+        }
+
+        return $this->createForm(ArticleType::class, $data, ['labelsAll' => $formLabels, 'allArticles' => $allArticles]);
+
+    }
+
+    /**
+     * @Route("/articles/new", name="articles_new")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function newArticle(Request $request)
+    {
+        $form = $this->createForm(ArticleBasicsType::class, null, ['submit' => true]);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $formData = $form->getData();
+            $formData['beer_keg'] = null; // todo
+            $result = $this->apiMiddleware->postJSON(
+                ApiMiddleware::ROUTE_ARTICLES,
+                [],
+                $formData
+            );
+            return $this->redirectToRoute('articles_edit', ['articleId' => $result['id']]);
+
+        }
+        return $this->render('articles/edit.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
     /**
      * @Route("/articles/{articleId}", name="articles_edit")
      * @param Request $request
@@ -48,71 +99,58 @@ class ArticlesController extends AbstractController implements AuthenticatedCont
     public function editArticle(Request $request, int $articleId)
     {
         $userData = $this->apiMiddleware->getJSON(ApiMiddleware::ROUTE_ARTICLES_ID, ['article_id' => $articleId]);
-        $labels = $this->apiMiddleware->getJSON(ApiMiddleware::ROUTE_LABELS);
-
-        $articles = $this->apiMiddleware->getJSON(ApiMiddleware::ROUTE_ARTICLES);
-        $allArticles = [];
-        foreach ($articles as $article) {
-
-            if(array_key_exists($article['name'], $allArticles))
-            {
-                $article['name'] = $article['name'].'('.$article['id'].')';
-            }
-            $allArticles[$article['name']] = $article['id'];
-        }
-
-        $formLabels = [];
-        foreach ($labels as $label)
-        {
-            $formLabels[$label['name']] = $label['id'];
-        }
-
-        $form = $this->createForm(ArticleType::class, $userData, ['labelsAll' => $formLabels,'allArticles' => $allArticles]);
-
+        $form = $this->createArticleForm($userData);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
             foreach ($formData as $key => $value) {
                 if ($key === 'image' && $value instanceof UploadedFile) {
                     $this->apiMiddleware->sendFile(ApiMiddleware::ROUTE_ARTICLES_IMAGE, $value, ['article_id' => $articleId]);
-                    } elseif ($key === 'labels') {
-                        if ($userData[$key] != $value) // != JE SPRÁVNĚ, nezáleží nám na pořadí
-                        {
-                            $this->apiMiddleware->putJSON(
-                                ApiMiddleware::ROUTE_ARTICLES_LABELS,
-                                ['article_id' => $articleId],
-                                $value
-                            );
-                        }
-                    } elseif ($key === 'components') {
-                        if ($userData[$key] != $value) // != JE SPRÁVNĚ, nezáleží nám na pořadí
-                        {
-                            $components = [];
-                            foreach ($value as $component)
-                            {
-                                if($component['id']) {
-                                    $components[] = ['amount' => $component['amount'], 'component' => $component['id']];
-                                }
-                            }
-                            $this->apiMiddleware->putJSON(
-                                ApiMiddleware::ROUTE_ARTICLES_COMPONENTS,
-                                ['article_id' => $articleId],
-                                $components
-                            );
-                        }
-                    } elseif ($key === 'tariffs') {
-                        if ($userData[$key] != $value) // != JE SPRÁVNĚ, nezáleží nám na pořadí
-                        {
-                            $this->apiMiddleware->putJSON(
-                                ApiMiddleware::ROUTE_ARTICLES_TARIFFS,
-                                ['article_id' => $articleId],
-                                array_values($value)
-                            );
-                        }
+                } elseif ($key === 'labels') {
+                    if ($userData[$key] != $value) // != JE SPRÁVNĚ, nezáleží nám na pořadí
+                    {
+                        $this->apiMiddleware->putJSON(
+                            ApiMiddleware::ROUTE_ARTICLES_LABELS,
+                            ['article_id' => $articleId],
+                            $value
+                        );
                     }
-//                elseif ($value !== $userData[$key]) {
-//                    $this->apiMiddleware->putJSON(self::ROUTE_MAP[$key], ['user_id' => $userId], [$key => $value?:null]);
-//                }
+                } elseif ($key === 'components') {
+                    if ($userData[$key] != $value) // != JE SPRÁVNĚ, nezáleží nám na pořadí
+                    {
+                        $components = [];
+                        foreach ($value as $component) {
+                            if ($component['id']) {
+                                $components[] = ['amount' => $component['amount'], 'component' => $component['id']];
+                            }
+                        }
+                        $this->apiMiddleware->putJSON(
+                            ApiMiddleware::ROUTE_ARTICLES_COMPONENTS,
+                            ['article_id' => $articleId],
+                            $components
+                        );
+                    }
+                } elseif ($key === 'tariffs') {
+                    if ($userData[$key] != $value) // != JE SPRÁVNĚ, nezáleží nám na pořadí
+                    {
+                        $this->apiMiddleware->putJSON(
+                            ApiMiddleware::ROUTE_ARTICLES_TARIFFS,
+                            ['article_id' => $articleId],
+                            array_values($value)
+                        );
+                    }
+                } elseif ($key === 'basics') {
+                    if ($value['name'] !== $userData['name'] || $value['unit'] !== $userData['unit']) // != JE SPRÁVNĚ, nezáleží nám na pořadí
+                    {
+                        //todo kegy
+                        $value['beer_keg'] = $userData['beer_keg'];
+                        $this->apiMiddleware->putJSON(
+                            ApiMiddleware::ROUTE_ARTICLES_ID,
+                            ['article_id' => $articleId],
+                            $value
+                        );
+                    }
+                }
             }
         }
         return $this->render('articles/edit.html.twig', [

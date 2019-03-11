@@ -9,4 +9,5 @@
             <tr><td>{{ article['name'] }}</td><td><a href="{{ path('articles_edit', {'articleId': article['id']}) }}">Upravit</a></td></tr>
         {% endfor %}
     </table>
+    <a href="{{ path('articles_new') }}">VYTVO5IT NOVÝ</a>
 {% endblock %}

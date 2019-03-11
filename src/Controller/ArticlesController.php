@@ -60,7 +60,27 @@ class ArticlesController extends AbstractController implements AuthenticatedCont
             $formLabels[$label['name']] = $label['id'];
         }
 
-        return $this->createForm(ArticleType::class, $data, ['labelsAll' => $formLabels, 'allArticles' => $allArticles]);
+
+        $emptyKegs = null;
+        $inheritableKegsChoices = null;
+        if ($data['beer_keg']) {
+            $inheritableKegs = $this->apiMiddleware->getJSON(ApiMiddleware::ROUTE_INHERITABLE_KEGS);
+            $inheritableKegsChoices = [];
+            foreach ($inheritableKegs as $inheritableKeg) {
+                $inheritableKegsChoices[$inheritableKeg['name']] = $inheritableKeg['id'];
+            }
+
+            $emptyKegs = [];
+        }
+
+
+
+        return $this->createForm(ArticleType::class, $data, [
+            'labelsAll' => $formLabels,
+            'allArticles' => $allArticles,
+            'empty_kegs' => $emptyKegs,
+            'inheritable_kegs' => $inheritableKegsChoices,
+        ]);
 
     }
 
@@ -76,7 +96,17 @@ class ArticlesController extends AbstractController implements AuthenticatedCont
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
-            $formData['beer_keg'] = null; // todo
+
+            if ($formData['keg']) {
+                $formData['beer_keg'] = [
+                    'empty_keg' => null,
+                    'inherit_products' => null,
+                    'volume' => 1
+                ];
+            } else {
+                $formData['beer_keg'] = null;
+            }
+            unset($formData['keg']);
             $result = $this->apiMiddleware->postJSON(
                 ApiMiddleware::ROUTE_ARTICLES,
                 [],
@@ -106,7 +136,8 @@ class ArticlesController extends AbstractController implements AuthenticatedCont
             foreach ($formData as $key => $value) {
                 if ($key === 'image' && $value instanceof UploadedFile) {
                     $this->apiMiddleware->sendFile(ApiMiddleware::ROUTE_ARTICLES_IMAGE, $value, ['article_id' => $articleId]);
-                } elseif ($key === 'labels') {
+                }
+                if ($key === 'labels') {
                     if ($userData[$key] != $value) // != JE SPRÁVNĚ, nezáleží nám na pořadí
                     {
                         $this->apiMiddleware->putJSON(
@@ -115,7 +146,8 @@ class ArticlesController extends AbstractController implements AuthenticatedCont
                             $value
                         );
                     }
-                } elseif ($key === 'components') {
+                }
+                if ($key === 'components') {
                     if ($userData[$key] != $value) // != JE SPRÁVNĚ, nezáleží nám na pořadí
                     {
                         $components = [];
@@ -130,7 +162,8 @@ class ArticlesController extends AbstractController implements AuthenticatedCont
                             $components
                         );
                     }
-                } elseif ($key === 'tariffs') {
+                }
+                if ($key === 'tariffs') {
                     if ($userData[$key] != $value) // != JE SPRÁVNĚ, nezáleží nám na pořadí
                     {
                         $this->apiMiddleware->putJSON(
@@ -139,11 +172,27 @@ class ArticlesController extends AbstractController implements AuthenticatedCont
                             array_values($value)
                         );
                     }
-                } elseif ($key === 'basics') {
-                    if ($value['name'] !== $userData['name'] || $value['unit'] !== $userData['unit']) // != JE SPRÁVNĚ, nezáleží nám na pořadí
+                }
+                if ($key === 'basics') {
+                    if (
+                        $value['name'] !== $userData['name'] ||
+                        $value['unit'] !== $userData['unit'] ||
+                        (
+                            isset($value['beer_keg']) && $value['beer_keg'] != $userData['beer_keg']
+                        )
+                    ) // != JE SPRÁVNĚ, nezáleží nám na pořadí
                     {
-                        //todo kegy
-                        $value['beer_keg'] = $userData['beer_keg'];
+                        if (!isset($value['beer_keg'])) {
+                            $value['beer_keg'] = null;
+                        } else {
+                            $value['beer_keg']['empty_keg'] = $value['beer_keg']['empty_keg'] ?
+                                (int)$value['beer_keg']['empty_keg'] :
+                                null;
+
+                            $value['beer_keg']['inherit_products'] = $value['beer_keg']['inherit_products'] ?
+                                (int)$value['beer_keg']['inherit_products'] :
+                                null;
+                        }
                         $this->apiMiddleware->putJSON(
                             ApiMiddleware::ROUTE_ARTICLES_ID,
                             ['article_id' => $articleId],

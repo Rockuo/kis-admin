@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -10,27 +11,21 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class ArticleBasicsType extends AbstractType
 {
 
-    /*
-     * {
-          "beer_keg": {
-            "empty_keg": 0,
-            "inherit_products": 0,
-            "volume": 0
-          },
-          "name": "string",
-          "unit": "string"
-       }
-    */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('name')
-            ->add('unit')
-            //->add('beer_keg', ArticleKegType::class) TODO
-        ;
-
+            ->add('unit');
         if ($options['submit']) {
+            $builder->add('keg', CheckboxType::class, ['required' => false]);
             $builder->add('save', SubmitType::class, ['label' => 'Vytvořit']);
+        }
+        elseif ($options['empty_kegs'] !== null && $options['inheritable_kegs'] !== null) {
+            $builder
+                ->add('beer_keg', ArticleKegType::class, [
+                    'inheritable_kegs' => $options['inheritable_kegs'],
+                    'empty_kegs' => $options['empty_kegs']
+                ]);
         }
     }
 
@@ -38,6 +33,8 @@ class ArticleBasicsType extends AbstractType
     {
         $resolver->setDefaults([
             'submit' => false,
+            'inheritable_kegs' => null,
+            'empty_kegs' => null,
         ]);
     }
 }

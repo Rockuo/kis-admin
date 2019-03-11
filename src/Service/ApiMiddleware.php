@@ -61,6 +61,9 @@ class ApiMiddleware
     const ROUTE_LABELS_ID = 'labels/{label_id}';
 
 
+    const ROUTE_INHERITABLE_KEGS = 'articles/inheritable_kegs';
+
+
     const USER_ROLES = [
             'disabled_user' => 'Disabled user',
             'sympathizing_member' => 'Sympathizing member',

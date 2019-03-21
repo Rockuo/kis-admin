@@ -54,24 +54,19 @@ class UserController extends AbstractController implements AuthenticatedControll
      */
     public function editUser(Request $request, int $userId)
     {
-        /*
-             {
-                  "email": "user@example.com",
-                  "gamification_consent": true,
-                  "name": "string",
-                  "nickname": "string",
-                  "role": "disabled_user"
-            }
-        */
         $userData = $this->apiMiddleware->getJSON(ApiMiddleware::ROUTE_USERS_ID, ['user_id' => $userId]);
 
-        $form = $this->createForm(UserType::class, $userData);
+        $form = $this->createForm(UserType::class, $userData, ['me' => $userId === $request->getSession()->get('user_data')['id']]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData();
             foreach ($formData as $key => $value) {
-                if ($value !== $userData[$key]) {
+                if($key === 'pin') {
+                    if($value) {
+                        $this->apiMiddleware->putJSON(ApiMiddleware::ROUTE_ME_PIN, [], ['pin' => $value]);
+                    }
+                } elseif ($value !== $userData[$key]) {
                     $this->apiMiddleware->putJSON(self::ROUTE_MAP[$key], ['user_id' => $userId], [$key => $value?:null]);
                 }
             }

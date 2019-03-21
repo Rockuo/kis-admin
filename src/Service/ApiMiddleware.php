@@ -63,6 +63,8 @@ class ApiMiddleware
 
     const ROUTE_INHERITABLE_KEGS = 'articles/inheritable_kegs';
 
+    const ROUTE_ME_PIN = 'users/me/pin';
+
 
     const USER_ROLES = [
             'disabled_user' => 'Disabled user',

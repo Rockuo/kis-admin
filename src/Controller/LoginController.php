@@ -103,7 +103,7 @@ class LoginController extends AbstractController implements AuthenticatedControl
 
             $apiRegisterResponse = $this->apiMiddleware->post(
                 ApiMiddleware::ROUTE_AUTH_EDUID_REG,
-                ['session_id' => $postData['session_id']],
+                ['session_id' => $request->get('session_id')],
                 $postData
             );
             $apiRegisterResponseData = json_decode($apiRegisterResponse->getBody()->getContents(), true);

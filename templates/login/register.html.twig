@@ -17,6 +17,7 @@
             }
             window.readOnce('wss://'+ip, function (rfid) {
                 console.log(rfid);
+                alert('Karta načtena');
                 var input =  document.querySelector('form [name="register[rfid]"]');
                 input.value = rfid;
             });

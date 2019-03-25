@@ -88,7 +88,6 @@ class LoginController extends AbstractController implements AuthenticatedControl
         $form->handleRequest($request);
 
 
-
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $postData = ['gamification_consent' => $data['gamification_consent']];
@@ -108,7 +107,7 @@ class LoginController extends AbstractController implements AuthenticatedControl
             );
             $apiRegisterResponseData = json_decode($apiRegisterResponse->getBody()->getContents(), true);
 
-            return $this->render('login/registered.html.twig', $apiRegisterResponseData);
+            return $this->render('login/registered.html.twig', ['userData' => $apiRegisterResponseData]);
         }
         elseif ($eduIdSession) {
             return $this->render('login/register.html.twig', ['form' => $form->createView()]);

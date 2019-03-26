@@ -3,5 +3,23 @@
 {% block title %}Uživatel{% endblock %}
 
 {% block body %}
-{{ form(form) }}
+    {{ form(form) }}
+    {#<script src="/kis/admin/kisRfidCompiled.js"></script>#}
+    {#<script src="/kisRfidCompiled.js"></script>#}
+    {#<script>#}
+        {#var load = document.querySelector('form [name="register[load]"]');#}
+        {#load.addEventListener('click', function () {#}
+            {#var ip = prompt('Zadej IP čtečky');#}
+            {#if (!ip) {#}
+                {#alert('IP nezadána');#}
+                {#return;#}
+            {#}#}
+            {#window.readOnce('wss://' + ip, function (rfid) {#}
+                {#console.log(rfid);#}
+                {#alert('Karta načtena');#}
+                {#var input = document.querySelector('form [name="register[rfid]"]');#}
+                {#input.value = rfid;#}
+            {#});#}
+        {#});#}
+    {#</script>#}
 {% endblock %}

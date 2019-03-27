@@ -24,9 +24,9 @@ class UserType extends AbstractType
             ->add('gamification_consent', CheckboxType::class, ['required' => false])
             ->add('name')
             ->add('nickname', TextType::class,['required' => false])
-//            ->add('role', ChoiceType::class, ['choices' => array_flip(ApiMiddleware::USER_ROLES)])
+            ->add('role', ChoiceType::class, ['choices' => array_flip(ApiMiddleware::USER_ROLES)]);
 //            ->add('load', ButtonType::class, ['label' => 'Přečít ID'])
-            ->add('rfid', HiddenType::class,['required' => false]);
+//            ->add('rfid', HiddenType::class,['required' => false]);
 
         if($options['me'])
         {

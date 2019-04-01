@@ -43,6 +43,7 @@ class ApiMiddleware
     const ROUTE_USERS_NAME = 'users/{user_id}/name';
     const ROUTE_USERS_NICKNAME = 'users/{user_id}/nickname';
     const ROUTE_USERS_ROLE = 'users/{user_id}/role';
+    const ROUTE_USERS_RFID = 'users/{user_id}/rfid';
 
     const ROUTE_ARTICLES = 'articles';
     const ROUTE_ARTICLES_ID = 'articles/{article_id}';

@@ -17,6 +17,7 @@ class UserController extends AbstractController implements AuthenticatedControll
         'name' => ApiMiddleware::ROUTE_USERS_NAME,
         'nickname' => ApiMiddleware::ROUTE_USERS_NICKNAME,
         'role' => ApiMiddleware::ROUTE_USERS_ROLE,
+        'rfid' => ApiMiddleware::ROUTE_USERS_ROLE,
     ];
 
 

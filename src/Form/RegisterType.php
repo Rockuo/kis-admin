@@ -22,7 +22,7 @@ class RegisterType extends AbstractType
         $builder
             ->add('gamification_consent', CheckboxType::class, ['required' => false])
             ->add('nickname', TextType::class,['required' => false])
-            ->add('load', ButtonType::class, ['label' => 'Přečít ID'])
+            ->add('load', ButtonType::class, ['label' => 'Přečíst ID', 'attr' => ['style' => 'width:200px;height:200px;']])
 
             ->add('rfid', HiddenType::class,['required' => false])
             ->add('session_id', HiddenType::class)

@@ -6,9 +6,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 require dirname(__DIR__).'/config/bootstrap.php';
 
-$_SERVER['kis-prefix'] = 'https://su-dev.fit.vutbr.cz/kis/admin';
+$_SERVER['kis-prefix'] = 'https://su-dev.fit.vutbr.cz';
 if(strpos( $_SERVER['HTTP_HOST'], 'su-int') !== false){
-    $_SERVER['kis-prefix'] = 'https://su-int.fit.vutbr.cz/kis/admin';
+    $_SERVER['kis-prefix'] = 'https://su-int.fit.vutbr.cz';
 }
 
 if ($_SERVER['APP_DEBUG']) {

@@ -22,7 +22,7 @@ class ApiMiddleware
     private $client;
 
     const BASE_CONF = [
-        'base_uri' => 'https://su-dev.fit.vutbr.cz/kis/api/',
+        'base_uri' => 'https://su-int.fit.vutbr.cz/kis/api/',
         'defaults' => [
             RequestOptions::ALLOW_REDIRECTS => false,
         ]

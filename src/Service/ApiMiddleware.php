@@ -22,7 +22,7 @@ class ApiMiddleware
     private $client;
 
     const BASE_CONF = [
-        'base_uri' => 'https://su-int.fit.vutbr.cz/kis/api/',
+        'base_path' =>  '/kis/api/',
         'defaults' => [
             RequestOptions::ALLOW_REDIRECTS => false,
         ]
@@ -202,7 +202,7 @@ class ApiMiddleware
         rewind($fp);
 
 
-        $ch = curl_init(self::BASE_CONF['base_uri'].$this->processURL($url, $urlParams));
+        $ch = curl_init($_SERVER['kis-prefix'] . self::BASE_CONF['base_path'].$this->processURL($url, $urlParams));
         $authorization = "Authorization: Bearer ".$this->session->get('auth_data')['auth_token'];
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/octet-stream' , $authorization ));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

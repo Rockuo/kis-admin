@@ -6,13 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 require dirname(__DIR__).'/config/bootstrap.php';
 
-$_SERVER['kis-prefix'] = 'https://su-dev.fit.vutbr.cz';
-if(strpos( $_SERVER['HTTP_HOST'], 'su-int') !== false){
-    $_SERVER['kis-prefix'] = 'https://su-int.fit.vutbr.cz';
-}
-
 if ($_SERVER['APP_DEBUG']) {
-    $_SERVER['kis-prefix'] = 'http://localhost:8000';
     umask(0000);
 
     Debug::enable();
